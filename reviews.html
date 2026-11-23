@@ -168,8 +168,8 @@
         <div class="switch-links"><a class="switch-link" href="index.html">Текстовая версия</a><a class="switch-link" href="audiobook.html">Аудиоверсия</a></div>
       </div>
       <div class="score-card" aria-label="Общий рейтинг и отзывы">
-        <div class="score"><span class="star">★</span>4,4</div>
-        <div><div class="score-label">общая оценка</div><div class="score-details">5 844 оценки · 685 отзывов</div><div class="score-details">4,2 · рейтинг LiveLib</div></div>
+        <div class="score" id="summary-score"><span class="star">★</span><span id="summary-rating">4,4</span></div>
+        <div><div class="score-label" id="summary-label">общая оценка</div><div class="score-details" id="summary-details">5 844 оценки · 685 отзывов</div><div class="score-details">4,2 · рейтинг LiveLib</div></div>
       </div>
     </section>
 
@@ -232,13 +232,13 @@
       <aside class="sidebar">
         <section class="side-card">
           <h3>Общая оценка</h3>
-          <div class="stat-row"><span>Средний рейтинг</span><strong>4,4 из 5</strong></div>
+          <div class="stat-row"><span>Средний рейтинг</span><strong id="scope-average">4,4 из 5</strong></div>
           <div class="stat-row"><span>Рейтинг соцсети LiveLib</span><strong>4,2</strong></div>
-          <div class="stat-row"><span>Оценок обеих версий</span><strong>5 844</strong></div>
-          <div class="stat-row"><span>Отзывов</span><strong>685</strong></div>
+          <div class="stat-row"><span>Оценок выбранной версии</span><strong id="scope-votes">5 844</strong></div>
+          <div class="stat-row"><span>Отзывов выбранной версии</span><strong id="scope-reviews">685</strong></div>
           <div class="stat-row"><span>Текстовая версия</span><strong>324</strong></div>
           <div class="stat-row"><span>Аудиоверсия</span><strong>361</strong></div>
-          <p class="method">Общая оценка взвешена по числу оценок каждой версии и округлена до десятых.</p>
+          <p class="method" id="scope-method">Общая оценка взвешена по числу оценок каждой версии и округлена до десятых.</p>
         </section>
         <section class="side-card">
           <h3>Распределение оценок</h3>
@@ -274,6 +274,11 @@
     const empty = document.getElementById('empty-state');
     const sort = document.getElementById('sort-reviews');
     let activeFilter = 'all';
+    const ratingStats = {
+      all: { rating: '4,4', votes: '5 844', reviews: '685', voteLabel: 'оценок', reviewLabel: 'отзывов', label: 'общая оценка', method: 'Общая оценка взвешена по числу оценок каждой версии и округлена до десятых.' },
+      text: { rating: '4,3', votes: '2 176', reviews: '324', voteLabel: 'оценок', reviewLabel: 'отзыва', label: 'оценка текстовой версии', method: 'Показаны суммарные оценки и отзывы текстовой версии.' },
+      audio: { rating: '4,5', votes: '3 668', reviews: '361', voteLabel: 'оценок', reviewLabel: 'отзыв', label: 'оценка аудиоверсии', method: 'Показаны суммарные оценки и отзывы аудиоверсии.' }
+    };
 
     function renderReviews() {
       const visible = cards.filter(card => activeFilter === 'all' || card.dataset.format === activeFilter);
@@ -283,8 +288,16 @@
       visible.forEach(card => list.append(card));
       cards.filter(card => !visible.includes(card)).forEach(card => list.append(card));
       cards.forEach(card => card.hidden = !visible.includes(card));
-      const total = activeFilter === 'text' ? 324 : activeFilter === 'audio' ? 361 : 685;
+      const stats = ratingStats[activeFilter];
+      const total = Number(stats.reviews.replace(/\s/g, ''));
       status.textContent = `Показано ${visible.length} из ${total} отзывов`;
+      document.getElementById('summary-rating').textContent = stats.rating;
+      document.getElementById('summary-label').textContent = stats.label;
+      document.getElementById('summary-details').textContent = `${stats.votes} ${stats.voteLabel} · ${stats.reviews} ${stats.reviewLabel}`;
+      document.getElementById('scope-average').textContent = `${stats.rating} из 5`;
+      document.getElementById('scope-votes').textContent = stats.votes;
+      document.getElementById('scope-reviews').textContent = stats.reviews;
+      document.getElementById('scope-method').textContent = stats.method;
       empty.style.display = visible.length ? 'none' : 'block';
     }
 
